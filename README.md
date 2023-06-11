@@ -1,3 +1,3 @@
-## streamlit
-Streamlit Web Application
+# Streamlit Web Application
+
 This is my first web application created using Streamlit.
