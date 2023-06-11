@@ -16,7 +16,7 @@ if add_selectbox == "BMI Calculator":
     st.write(height, 'cm')
 
     weight = st.number_input('몸무게를 입력하세요. (kg)', value = 50, step = 5)
-    st.write(height, 'kg')
+    st.write(weight, 'kg')
 
     def bmi_range(bmi):
         if bmi>=25:
