@@ -9,7 +9,7 @@ st.set_page_config(page_title='Weather Forecast', page_icon="⛅",)
 st.title("7-DAY WEATHER FORECAST 🌧️🌥️")
 
 # 사용자로부터 도시 이름 입력받는 입력 박스 생성; 영어만 가능
-city = st.text_input("도시 이름을 입력하세요.")
+city = st.text_input("도시 이름을 영어로 입력하세요.")
 
 # 온도 단위 선택하는 셀렉트 박스 생성
 unit = st.selectbox("온도 단위 선택", ["섭씨", "화씨"])
