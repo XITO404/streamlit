@@ -1,17 +1,23 @@
-import streamlit as st
+import streamlit as st      # streamlit 라이브러리 가져오기
 import datetime, requests
 from plotly import graph_objects as go
 
-st.set_page_config(page_title='Weather Forecast', page_icon="⛅")
+# 탭의 이름과 아이콘 설정
+st.set_page_config(page_title='Weather Forecast',
+                   page_icon="⛅",)
 
+# 웹앱 제목 출력
 st.title("7-DAY WEATHER FORECAST 🌧️🌥️")
 
+# 사용자로부터 도시 이름 입력받기; 영어만 가능
 city = st.text_input("도시 이름을 입력하세요.")
 
+# 온도, 풍속 단위 선택 및 그래프 유형 선택
 unit = st.selectbox("온도 단위 선택", ["섭씨", "화씨"])
 speed = st.selectbox("풍속 단위 선택", ["m/s", "km/h"])
 graph = st.radio("그래프 유형 선택", ["막대 그래프", "선 그래프"])
 
+# 온도 단위와 풍속 단위에 따른 출력 단위 설정
 if unit=="섭씨":
     temp_unit=" °C"
 else:
@@ -22,11 +28,13 @@ if speed=="km/h":
 else:
     wind_unit=" m/s"
 
+# 확인 버튼 클릭 시 실행되는 코드
 if st.button("확인"):
     try:
         api = "9b833c0ea6426b70902aa7a4b1da285c"  # OpenWeatherMap API Key
         cel = 273.15
-
+        
+        # 유저가 선택한 도시의 실시간 날씨 정보 가져오기
         url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api}"
         response = requests.get(url)
         x = response.json()
@@ -34,6 +42,8 @@ if st.button("확인"):
         lon = x["coord"]["lon"]
         lat = x["coord"]["lat"]
         exclude = "current,minutely,hourly"
+        
+        # 선택한 도시의 7일간 일기예보 데이터 가져오기
         url2 = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={exclude}&appid={api}'
         res = requests.get(url2)
         y = res.json()
@@ -51,7 +61,8 @@ if st.button("확인"):
         sunset=[]
         cel=273.15
 
-        for item in y["daily"][:7]:     # 8일간의 데이터에서 7일까지만 받아오도록 슬라이싱
+        # 8일간의 데이터에서 7일까지만 받아오도록 슬라이싱, 각 변수에 저장
+        for item in y["daily"][:7]:     
             if unit == "섭씨":
                 maxtemp.append(round(item["temp"]["max"] - cel, 1))
                 mintemp.append(round(item["temp"]["min"] - cel, 1))
@@ -76,6 +87,7 @@ if st.button("확인"):
             d1 = datetime.date.fromtimestamp(item["dt"])
             dates.append(d1.strftime('%d %b'))
 
+        # 막대 그래프 출력 함수
         def bargraph():
             fig = go.Figure(data=[
                 go.Bar(name="최고 기온", x=dates, y=maxtemp, marker_color='#74afc4'),
@@ -85,6 +97,7 @@ if st.button("확인"):
                               margin=dict(l=70, r=10, t=80, b=80), font=dict(color="white"))
             st.plotly_chart(fig)
 
+        # 선 그래프 출력 함수
         def linegraph():
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=dates, y=mintemp, name='최저 기온'))
@@ -92,10 +105,12 @@ if st.button("확인"):
             fig.update_layout(xaxis_title="날짜", yaxis_title="온도", font=dict(color="white"))
             st.plotly_chart(fig)
 
+        # 선택한 도시의 일기예보 출력
         st.header(f"{city}의 일주일 일기예보")
         icon=x["weather"][0]["icon"]
         current_weather=x["weather"][0]["description"].title()
         
+        # 현재 기온 및 아이콘 출력
         if unit=="섭씨":
             temp=str(round(x["main"]["temp"]-cel,2))
         else:
@@ -107,19 +122,20 @@ if st.button("확인"):
         with col2:
             st.image(f"http://openweathermap.org/img/wn/{icon}@2x.png",width=70)
 
-        
+        # 현재 기온 및 날씨 정보 출력
         col1, col2= st.columns(2)
         col1.metric("기온",temp+temp_unit)
         col2.metric("날씨",current_weather)
         st.subheader(" ")
         
+        # 선택한 그래프 유형에 따라 그래프 출력
         if graph=="막대 그래프":
             bargraph()
             
         elif graph=="선 그래프":
             linegraph()
 
-         
+        
         table1=go.Figure(data=[go.Table(header=dict(
                   values = [
                   '<b>날짜</b>',
